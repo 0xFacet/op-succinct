@@ -8,7 +8,7 @@ use alloy_provider::{fillers::TxFiller, Provider, ProviderBuilder};
 use alloy_sol_types::SolValue;
 use anyhow::{Context, Result};
 use sp1_sdk::{
-    CpuProver, Prover, ProverClient, SP1ProvingKey,
+    CpuProver, Prover, SP1ProvingKey,
     SP1VerifyingKey,
 };
 use tokio::time;
@@ -65,7 +65,7 @@ where
     ) -> Result<Self> {
         let config = ProposerConfig::from_env()?;
 
-        let prover = Arc::new(ProverClient::builder().cpu().build());
+        let prover = Arc::new(CpuProver::new());
         let (range_pk, range_vk) = prover.setup(RANGE_ELF_EMBEDDED);
         let (agg_pk, _) = prover.setup(AGGREGATION_ELF);
 
@@ -124,14 +124,23 @@ where
         };
 
         tracing::info!("Generating Range Proof");
-        let range_proof = self
-            .prover
-            .prover
-            .prove(&self.prover.range_pk, &sp1_stdin)
-            .compressed()
-            .cycle_limit(1_000_000_000_000)
-            .run()
-            .context("Failed to generate range proof")?;
+        let prover_clone = self.prover.prover.clone();
+        let pk_clone = self.prover.range_pk.clone();
+        let stdin_clone = sp1_stdin.clone();
+        let blocking_task_result = tokio::task::spawn_blocking(move || {
+            prover_clone
+                .prove(&pk_clone, &stdin_clone)
+                .compressed()
+                .cycle_limit(1_000_000_000_000)
+                .run()
+        })
+        .await
+        .context("Blocking task for range proof failed")?;
+        
+        let range_proof = match blocking_task_result {
+            Ok(proof) => proof,
+            Err(e) => return Err(anyhow::anyhow!("Failed to generate range proof: {}", e)),
+        };
 
         tracing::info!("Preparing Stdin for Agg Proof");
         let proof = range_proof.proof.clone();
@@ -165,13 +174,22 @@ where
         };
 
         tracing::info!("Generating Agg Proof");
-        let agg_proof = self
-            .prover
-            .prover
-            .prove(&self.prover.agg_pk, &sp1_stdin)
-            .groth16()
-            .run()
-            .context("Failed to generate aggregation proof")?;
+        let prover_clone = self.prover.prover.clone();
+        let pk_clone = self.prover.agg_pk.clone();
+        let stdin_clone = sp1_stdin.clone();
+        let blocking_task_result = tokio::task::spawn_blocking(move || {
+            prover_clone
+                .prove(&pk_clone, &stdin_clone)
+                .groth16()
+                .run()
+        })
+        .await
+        .context("Blocking task for aggregation proof failed")?;
+        
+        let agg_proof = match blocking_task_result {
+            Ok(proof) => proof,
+            Err(e) => return Err(anyhow::anyhow!("Failed to generate aggregation proof: {}", e)),
+        };
 
         let receipt = game
             .prove(agg_proof.bytes().into())
