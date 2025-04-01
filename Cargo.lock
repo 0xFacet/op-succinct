@@ -3047,7 +3047,7 @@ dependencies = [
  "hyper",
  "hyper-util",
  "rustls",
- "rustls-native-certs",
+ "rustls-native-certs 0.8.1",
  "rustls-pki-types",
  "tokio",
  "tokio-rustls",
@@ -4624,6 +4624,8 @@ dependencies = [
  "op-succinct-client-utils",
  "op-succinct-host-utils",
  "rand 0.9.0",
+ "rustls",
+ "rustls-native-certs 0.7.3",
  "sp1-sdk",
  "strum 0.27.1",
  "strum_macros 0.27.1",
@@ -6160,6 +6162,19 @@ dependencies = [
  "rustls-webpki",
  "subtle",
  "zeroize",
+]
+
+[[package]]
+name = "rustls-native-certs"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5bfb394eeed242e909609f56089eecfe5fda225042e8b171791b9c95f5931e5"
+dependencies = [
+ "openssl-probe",
+ "rustls-pemfile",
+ "rustls-pki-types",
+ "schannel",
+ "security-framework 2.11.1",
 ]
 
 [[package]]
@@ -7906,7 +7921,7 @@ dependencies = [
  "percent-encoding",
  "pin-project",
  "prost",
- "rustls-native-certs",
+ "rustls-native-certs 0.8.1",
  "rustls-pemfile",
  "socket2",
  "tokio",
