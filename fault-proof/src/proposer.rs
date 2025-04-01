@@ -8,7 +8,7 @@ use alloy_provider::{fillers::TxFiller, Provider, ProviderBuilder};
 use alloy_sol_types::SolValue;
 use anyhow::{Context, Result};
 use sp1_sdk::{
-    network::FulfillmentStrategy, NetworkProver, Prover, ProverClient, SP1ProvingKey,
+    CpuProver, Prover, ProverClient, SP1ProvingKey,
     SP1VerifyingKey,
 };
 use tokio::time;
@@ -27,7 +27,7 @@ use op_succinct_host_utils::{
 };
 
 struct SP1Prover {
-    network_prover: Arc<NetworkProver>,
+    prover: Arc<CpuProver>,
     range_pk: Arc<SP1ProvingKey>,
     range_vk: Arc<SP1VerifyingKey>,
     agg_pk: Arc<SP1ProvingKey>,
@@ -65,9 +65,9 @@ where
     ) -> Result<Self> {
         let config = ProposerConfig::from_env()?;
 
-        let network_prover = Arc::new(ProverClient::builder().network().build());
-        let (range_pk, range_vk) = network_prover.setup(RANGE_ELF_EMBEDDED);
-        let (agg_pk, _) = network_prover.setup(AGGREGATION_ELF);
+        let prover = Arc::new(ProverClient::builder().cpu().build());
+        let (range_pk, range_vk) = prover.setup(RANGE_ELF_EMBEDDED);
+        let (agg_pk, _) = prover.setup(AGGREGATION_ELF);
 
         Ok(Self {
             config: config.clone(),
@@ -78,7 +78,7 @@ where
             init_bond: factory.fetch_init_bond(config.game_type).await?,
             safe_db_fallback: config.safe_db_fallback,
             prover: SP1Prover {
-                network_prover,
+                prover,
                 range_pk: Arc::new(range_pk),
                 range_vk: Arc::new(range_vk),
                 agg_pk: Arc::new(agg_pk),
@@ -126,14 +126,12 @@ where
         tracing::info!("Generating Range Proof");
         let range_proof = self
             .prover
-            .network_prover
+            .prover
             .prove(&self.prover.range_pk, &sp1_stdin)
             .compressed()
-            .strategy(FulfillmentStrategy::Hosted)
-            .skip_simulation(true)
             .cycle_limit(1_000_000_000_000)
-            .run_async()
-            .await?;
+            .run()
+            .context("Failed to generate range proof")?;
 
         tracing::info!("Preparing Stdin for Agg Proof");
         let proof = range_proof.proof.clone();
@@ -169,11 +167,11 @@ where
         tracing::info!("Generating Agg Proof");
         let agg_proof = self
             .prover
-            .network_prover
+            .prover
             .prove(&self.prover.agg_pk, &sp1_stdin)
             .groth16()
-            .run_async()
-            .await?;
+            .run()
+            .context("Failed to generate aggregation proof")?;
 
         let receipt = game
             .prove(agg_proof.bytes().into())
