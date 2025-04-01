@@ -27,7 +27,7 @@ use op_succinct_host_utils::{
 };
 
 struct SP1Prover {
-    prover: Arc<CpuProver>,
+    prover: Arc<ProverClient>,
     range_pk: Arc<SP1ProvingKey>,
     range_vk: Arc<SP1VerifyingKey>,
     agg_pk: Arc<SP1ProvingKey>,
@@ -124,14 +124,19 @@ where
         };
 
         tracing::info!("Generating Range Proof");
-        let range_proof = self
-            .prover
-            .prover
-            .prove(&self.prover.range_pk, &sp1_stdin)
-            .compressed()
-            .cycle_limit(1_000_000_000_000)
-            .run()
-            .context("Failed to generate range proof")?;
+        let prover_clone = self.prover.prover.clone();
+        let pk_clone = self.prover.range_pk.clone();
+        let stdin_clone = sp1_stdin.clone();
+        let range_proof = tokio::task::spawn_blocking(move || {
+            prover_clone
+                .prove(&pk_clone, &stdin_clone)
+                .compressed()
+                .cycle_limit(1_000_000_000_000)
+                .run()
+        })
+        .await?
+        .context("Blocking task for range proof failed")?
+        .context("Failed to generate range proof")?;
 
         tracing::info!("Preparing Stdin for Agg Proof");
         let proof = range_proof.proof.clone();
@@ -165,13 +170,18 @@ where
         };
 
         tracing::info!("Generating Agg Proof");
-        let agg_proof = self
-            .prover
-            .prover
-            .prove(&self.prover.agg_pk, &sp1_stdin)
-            .groth16()
-            .run()
-            .context("Failed to generate aggregation proof")?;
+        let prover_clone = self.prover.prover.clone();
+        let pk_clone = self.prover.agg_pk.clone();
+        let stdin_clone = sp1_stdin.clone();
+        let agg_proof = tokio::task::spawn_blocking(move || {
+            prover_clone
+                .prove(&pk_clone, &stdin_clone)
+                .groth16()
+                .run()
+        })
+        .await?
+        .context("Blocking task for aggregation proof failed")?
+        .context("Failed to generate aggregation proof")?;
 
         let receipt = game
             .prove(agg_proof.bytes().into())
