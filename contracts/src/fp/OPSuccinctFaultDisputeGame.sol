@@ -188,7 +188,7 @@ contract OPSuccinctFaultDisputeGame is Clone, ISemver, IDisputeGame {
         AccessManager _accessManager
     ) {
         // Set up initial game state.
-        GAME_TYPE = GameType.wrap(42);
+        GAME_TYPE = GameType.wrap(1);
         MAX_CHALLENGE_DURATION = _maxChallengeDuration;
         MAX_PROVE_DURATION = _maxProveDuration;
         DISPUTE_GAME_FACTORY = _disputeGameFactory;

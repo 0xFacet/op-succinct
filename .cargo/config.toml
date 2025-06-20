@@ -1,0 +1,40 @@
+[patch."https://github.com/op-rs/kona"]
+kona-mpt = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-derive = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-driver = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-preimage = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-executor = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-proof = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-client = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-host = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-providers-alloy = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-rpc = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-protocol = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-registry = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-genesis = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-std-fpvm = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-std-fpvm-proc = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-cli = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-comp = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-hardforks = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-interop = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-macros = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-p2p = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-proof-interop = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-serde = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+kona-engine = { git = "https://github.com/0xFacet/facet-kona", branch = "facet-initial-changes" }
+
+[patch.crates-io]
+revm = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-bytecode = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-context = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-context-interface = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-database = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-database-interface = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-handler = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-inspector = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-interpreter = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-precompile = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-primitives = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+revm-state = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
+op-revm = { git = "https://github.com/0xFacet/facet-revm", branch = "facet-initial-changes" }
